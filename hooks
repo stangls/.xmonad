@@ -1,0 +1,66 @@
+#!/bin/bash
+
+function s {
+echo $1
+ ISRUNNING=`ps ax | grep -v grep | grep $1`
+ if [ "" =  "$ISRUNNING" ]; then
+   START="$@"
+   echo starting $START
+   `$START &`
+ fi
+}
+
+{
+	case "$1" in
+	  "startup")
+
+	    echo
+	    echo startup @ `date`
+	    #gnome-session
+
+	    s feh --bg-scale /usr/share/backgrounds/ubuntu-default-greyscale-wallpaper.png
+
+	    # monitors, e.g. xrandr script
+	    ~/bin/monitors.sh
+	    # comppositing manager (for transparency)
+	    # https://wiki.haskell.org/Xmonad/Frequently_asked_questions#How_do_I_use_compositing_with_xmonad.3F
+	    #s xcompmgr -c
+
+	    killall trayer
+	    s trayer --edge top --SetDockType true --SetPartialStrut true --width 14 --height 17 --expand false --monitor 1 --align right --transparent true --tint 0
+
+	    #s easystroke # start easystrok if not running
+	    #s "xscreensaver -no-splash"
+	    s "gnome-keyring-daemon" #"--start --components=pkcs11"
+	    # HINT: use the following command to disable mod4+p in gnome-settings to switch the monitor
+	    #       gconftool -t bool -s /apps/gnome_settings_daemon/plugins/xrandr false
+
+	    # gnome settiongs daemon
+	    #s "gnome-settings-daemon"
+	    # disable gnome settings: super+p switches monitor
+	    # gconftool -t bool -s /apps/gnome_settings_daemon/plugins/xrandr false
+
+	    #s "gnome-keyring-daemon" "--start --components=secrets"
+	    #s "gnome-settings-daemon-helper"
+	    #s "pamusb-agent"
+
+	    # panel stuff
+	    #s "lxpanel" "-p Lubuntu"
+	    s "nm-applet"
+	    #s "xfce4-power-manager" # use xfce4-power-manager-settings to configure
+	    s "bluetooth-applet"
+	    #s "gnome-volume-control-applet"
+
+	    #s "system-config-printer-applet"
+	    #s "update-notifier"
+	    #s "xbindkeys"
+
+	    cpuFreq.sh 2GHz
+	    touchpad.sh
+
+	    ;;
+	esac
+
+	echo
+
+} 2>&1 | tee -a /tmp/xmonad_hooks
